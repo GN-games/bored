@@ -1,15 +1,37 @@
 const shark = document.getElementById('shark');
 
+let targetX = window.innerWidth / 2;
+let targetY = window.innerHeight / 2;
+
 document.addEventListener('mousemove', (e) => {
-    const mouseX = e.clientX;
-    const mouseY = e.clientY;
-
-    const sharkX = shark.offsetLeft + shark.offsetWidth / 2;
-    const sharkY = shark.offsetTop + shark.offsetHeight / 2;
-
-    const angle = Math.atan2(mouseY - sharkY, mouseX - sharkX);
-    const distance = Math.min(50, Math.hypot(mouseX - sharkX, mouseY - sharkY)); // Limit distance to avoid fast jumps
-
-    // Move the shark towards the mouse pointer
-    shark.style.transform = `translate(${mouseX - sharkX}px, ${mouseY - sharkY}px) rotate(${angle}rad)`;
+    targetX = e.clientX;
+    targetY = e.clientY;
 });
+
+function moveShark() {
+    // Calculate movement speed and smooth the transition
+    const sharkRect = shark.getBoundingClientRect();
+    const sharkX = sharkRect.left + sharkRect.width / 2;
+    const sharkY = sharkRect.top + sharkRect.height / 2;
+
+    const dx = targetX - sharkX;
+    const dy = targetY - sharkY;
+    const distance = Math.hypot(dx, dy);
+
+    // Move the shark slowly towards the mouse position
+    const moveSpeed = Math.min(10, distance / 20); // Slow down the movement
+    const angle = Math.atan2(dy, dx);
+
+    // Calculate new position with the moveSpeed applied
+    const moveX = sharkX + moveSpeed * Math.cos(angle);
+    const moveY = sharkY + moveSpeed * Math.sin(angle);
+
+    shark.style.left = `${moveX - sharkRect.width / 2}px`;
+    shark.style.top = `${moveY - sharkRect.height / 2}px`;
+
+    // Request the next frame
+    requestAnimationFrame(moveShark);
+}
+
+// Start the shark movement
+moveShark();
